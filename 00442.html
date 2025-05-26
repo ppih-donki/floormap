@@ -2,15 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SHIBUYAHONTEN_FLOORMAP</title>
   <style>
-    /* 全体の余白リセットと背景カラー */
     html, body {
       margin: 0;
       padding: 0;
       background-color: #f7f7f7;
     }
-    /* コンテナを中央に配置 */
     .container {
       max-width: 1080px;
       margin: 0 auto;
@@ -18,37 +17,38 @@
       flex-direction: column;
       align-items: center;
     }
-    /* 各画像のスタイル */
     .container img {
       width: 100%;
       height: auto;
       display: block;
     }
-    /* リンクテキストのスタイル */
     .link-text {
       display: inline-block;
       font-weight: bold;
-      font-size: 2.4em; /* 文字サイズを元の2倍に */
+      font-size: 2em; /* 少し小さめに変更（必要に応じて） */
       padding: 10px 20px;
-      background-color: #F39C12; /* 少し暗めの黄色 */
+      background-color: #F39C12;
       border-radius: 5px;
-      text-decoration: none; /* 下線を除去 */
+      text-decoration: none;
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
-      margin-bottom: 10px; /* 画像との間に適度な余白 */
+      margin-bottom: 10px;
     }
-    /* ホバー効果で色や背景を変更 */
     .link-text:hover {
       background-color: #e08e0b;
       color: #000;
+    }
+    @media (max-width: 480px) {
+      .link-text {
+        font-size: 1.2em;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 改行を追加 -->
     <br>
-    <!-- ホバー効果付きのリンクテキスト -->
     <a class="link-text" href="https://r.qrqrq.com/LmtxK5Ie" target="_blank">
       【Go back to "AI Product location NAVI"】
     </a>
