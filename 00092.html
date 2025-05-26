@@ -1,47 +1,75 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GINZAHONKAN_FLOORMAP</title>
   <style>
-    /* 画像をブロック要素にし、間隔を設定 */
-    img {
-      display: block;
-      margin-bottom: 20px; /* 必要に応じて調整 */
-      max-width: 100%; /* レスポンシブ対応 */
+    /* 全体の余白リセットと背景カラー */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+    }
+
+    /* コンテナを中央に配置 */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 各画像のスタイル */
+    .container img {
+      width: 100%;
       height: auto;
+      display: block;
+      margin-bottom: 20px;
     }
 
     /* リンクテキストのスタイル */
     .link-text {
       display: inline-block;
       font-weight: bold;
-      font-size: 2.4em; /* 文字サイズを元の2倍に */
+      font-size: 2.4em;
       padding: 10px 20px;
-      background-color: #F39C12; /* 少し暗めの黄色 */
+      background-color: #F39C12;
       border-radius: 5px;
-      text-decoration: none; /* 下線を除去 */
+      text-decoration: none;
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
-      margin-bottom: 10px; /* 画像との間に適度な余白 */
+      margin-bottom: 10px;
     }
 
-    /* ホバー効果で色や背景を変更 */
     .link-text:hover {
       background-color: #e08e0b;
       color: #000;
+    }
+
+    /* スマホ向けのフォントサイズ調整（任意） */
+    @media (max-width: 480px) {
+      .link-text {
+        font-size: 1.5em;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- リンクボタン -->
-  <a href="https://r.qrqrq.com/0e9bvG7o" class="link-text" target="_blank">【Go back to "AI Product location NAVI"】</a>
+  <div class="container">
+    <br>
+    <!-- リンクボタン -->
+    <a href="https://r.qrqrq.com/0e9bvG7o" class="link-text" target="_blank">
+      【Go back to "AI Product location NAVI"】
+    </a>
 
-  <!-- フロアマップ画像 -->
-  <img src="./images/00092_1F_map.jpg" alt="1F Map">
-  <img src="./images/00092_2F_map.jpg" alt="2F Map">
+    <!-- フロアマップ画像 -->
+    <img src="./images/00092_1F_map.jpg" alt="1F Map">
+    <img src="./images/00092_2F_map.jpg" alt="2F Map">
+  </div>
 
 </body>
 </html>
