@@ -12,6 +12,7 @@
     }
     .container {
       max-width: 1080px;
+      width: 100%;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -22,6 +23,28 @@
       height: auto;
       display: block;
       margin-bottom: 20px;
+    }
+    .link-text {
+      display: inline-block;
+      font-weight: bold;
+      font-size: 2em;
+      padding: 10px 20px;
+      background-color: #F39C12;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      margin-bottom: 10px;
+    }
+    .link-text:hover {
+      background-color: #e08e0b;
+      color: #000;
+    }
+    @media (max-width: 480px) {
+      .link-text {
+        font-size: 0.8em;
+        padding: 4px 6px;
+      }
     }
   </style>
 </head>
