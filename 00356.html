@@ -1,56 +1,136 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SHINSEKAITEN_FLOORMAP</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Store 00356 Floor Map</title>
+  <meta name="robots" content="noindex,nofollow" />
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background-color: #f7f7f7;
-    }
-    .container {
-      max-width: 1080px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container img {
-      width: 100%;
-      height: auto;
-      display: block;
-      margin-bottom: 20px;
-    }
-    .link-text {
-      display: inline-block;
-      font-weight: bold;
-      font-size: 2em;
-      padding: 10px 20px;
-      background-color: #F39C12;
-      border-radius: 5px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-      margin-bottom: 10px;
-    }
-    .link-text:hover {
-      background-color: #e08e0b;
-      color: #000;
-    }
-    @media (max-width: 480px) {
-      .link-text {
-        font-size: 0.8em;
-        padding: 4px 6px;
-      }
-    }
+  :root{
+    --bg:#0b0b0b; --fg:#fff; --muted:#c9c9c9; --accent:#ffd400;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0; padding:0; background:var(--bg); color:var(--fg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans JP",sans-serif;
+  }
+  .flag-dock{
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    right: calc(env(safe-area-inset-right, 0px) + 10px);
+    z-index: 9999;
+    display:flex; align-items:center; gap:10px;
+    flex-wrap: nowrap; white-space: nowrap;
+    overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+    padding:6px 8px; background:rgba(0,0,0,.5); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.15); border-radius:999px; isolation:isolate;
+  }
+  .flag-dock::-webkit-scrollbar{height:6px}
+  .flag-dock::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
+  .flag-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; min-height:40px;
+    border-radius:999px; border:1px solid transparent;
+    background:rgba(255,255,255,.06);
+    cursor:pointer; user-select:none; touch-action:manipulation;
+    line-height:1; white-space:nowrap;
+    transition:transform .05s ease, background .2s ease, border .2s ease;
+  }
+  .flag-btn:active{transform:scale(.98)}
+  .flag-btn[aria-current="true"]{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(255,212,0,.25) inset;
+  }
+  .flag-btn img{ width:32px; height:32px; border-radius:50%; display:block; }
+  .flag-label{font-size:.92rem; color:var(--muted)}
+  @media (max-width:480px){ .flag-label{display:none} }
+  #mapContainer{
+    max-width: min(1100px, 100vw);
+    margin: 0 auto;
+    padding: 70px 12px 24px; /* 国旗バー分の余白 */
+    display:flex; align-items:flex-start; justify-content:center;
+  }
+  #floorMap{ width: 100%; height: auto; display:block; background:#000; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="./images/00356_1F_map.jpg" alt="1F Map">
-  </div>
+  <nav class="flag-dock" id="flagBar" aria-label="Language switcher"></nav>
+  <main id="mapContainer" aria-live="polite">
+    <img id="floorMap"
+         src="https://ppih-donki.github.io/floormap/images/00356_1F_ja_map.jpg"
+         alt="1F フロアマップ（日本語）"
+         loading="eager">
+  </main>
+
+  <script>
+  // ===== 設定 =====
+  const STORE_ID = "00356";
+  const FLOOR = "1F";
+  const BASE = "https://ppih-donki.github.io/floormap/images/"; // 画像直置き
+  const LANGS = [
+    { code: "ja", label: "日本語"  },
+    { code: "en", label: "English" },
+    { code: "zh", label: "中文"    }, // 中国語（簡繁まとめて zh 運用）
+    { code: "ko", label: "한국어"  },
+    { code: "th", label: "ไทย"     }
+  ];
+
+  // パス生成（images直下にファイルを置く想定）
+  const mapSrc  = (lang) => `${BASE}${STORE_ID}_${FLOOR}_${lang}_map.jpg`;
+  const flagSrc = (lang) => `${BASE}flag_${lang}.png`;
+
+  const flagBar  = document.getElementById("flagBar");
+  const floorMap = document.getElementById("floorMap");
+  let currentLang = localStorage.getItem("map_lang") || "ja";
+
+  function renderFlags(){
+    flagBar.innerHTML = "";
+    LANGS.forEach(({code, label})=>{
+      const btn = document.createElement("button");
+      btn.className = "flag-btn";
+      if (code === currentLang) btn.setAttribute("aria-current","true");
+      const img = document.createElement("img");
+      img.src = flagSrc(code);
+      img.alt = label;
+      const span = document.createElement("span");
+      span.className = "flag-label";
+      span.textContent = label;
+      btn.appendChild(img); btn.appendChild(span);
+      btn.addEventListener("click", ()=> setLanguage(code));
+      flagBar.appendChild(btn);
+    });
+  }
+
+  function setLanguage(code){
+    if (code === currentLang) return;
+    currentLang = code;
+    localStorage.setItem("map_lang", currentLang);
+    updateMap();
+    renderFlags();
+  }
+
+  function updateMap(){
+    const nextSrc = mapSrc(currentLang);
+    floorMap.alt = `${FLOOR} フロアマップ（${LANGS.find(l=>l.code===currentLang)?.label || currentLang}）`;
+    const probe = new Image();
+    probe.onload  = ()=> { floorMap.src = nextSrc; };
+    probe.onerror = ()=>{
+      const svg = encodeURIComponent(
+        `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
+           <rect width='100%' height='100%' fill='black'/>
+           <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+                 fill='white' font-family='sans-serif' font-size='28'>
+             No image: ${STORE_ID}_${FLOOR}_${currentLang}_map.jpg
+           </text>
+         </svg>`
+      );
+      floorMap.src = `data:image/svg+xml;charset=utf-8,${svg}`;
+    };
+    probe.src = nextSrc;
+  }
+
+  renderFlags();
+  updateMap();
+  </script>
 </body>
 </html>
