@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>CSVからQRコード生成・印刷（単一ファイル版）</title>
+
+  <!-- 画面表示用スタイル（style_qr.css を統合） -->
+  <style>
+    /* ===== style_qr.css (merged) ===== */
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      text-align: left;
+    }
+    #qrContainer {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .qr-item {
+      display: inline-block;
+      margin: 10px;
+      text-align: center;
+      border: 1px solid black;
+      padding: 5px;
+    }
+    .qr-code {
+      width: 132px;
+      height: 132px;
+      margin: 0 auto;
+    }
+    .qr-caption {
+      margin-top: 5px;
+      font-size: 14px;
+      max-width: 132px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #clearButton, #printButton {
+      margin: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* ===== モーダル用スタイル（create_qr.html内のカスタムモーダルを統合） ===== */
+    #printModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #printModal .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      text-align: center;
+      max-width: 300px;
+      width: 90%;
+    }
+    #printModal .modal-content p {
+      margin-bottom: 20px;
+    }
+    #printModal .modal-content button {
+      margin: 0 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    /* ===== 印刷用スタイル（print_qr.css を統合） ===== */
+    @page :first { margin-top: 0; }
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+    @media print {
+      /* 印刷時に不要な要素を非表示 */
+      h1, p, #csvFileInput, #clearButton, #printButton, #bulkInstructions, #individualInstructions, #qrInput, #generateButton, #individualPrintButton {
+        display: none;
+      }
+      /* 各ページごとのコンテナ（1ページ＝qr-page） */
+      .qr-page {
+        /* 印刷可能領域：190mm × 277mm */
+        width: 190mm;
+        height: 277mm;
+        display: grid;
+        /* 横5列・縦6行 */
+        grid-template-columns: repeat(5, 37.58mm);
+        grid-template-rows: repeat(6, 45.73mm);
+        gap: 2px;
+        box-sizing: border-box;
+        margin: 0 auto;
+        page-break-after: always;
+      }
+      /* 各QRコードセル */
+      .qr-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid black;
+        box-sizing: border-box;
+        padding: 1px;
+        overflow: hidden;
+      }
+      /* QRコード画像部分 */
+      .qr-code {
+        width: 32mm;
+        height: 32mm;
+        margin-bottom: 2px;
+      }
+      .qr-code canvas,
+      .qr-code img {
+        width: 32mm !important;
+        height: 32mm !important;
+      }
+      /* キャプション */
+      .qr-caption {
+        font-size: 8pt;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* 印刷時、削除ボタンは非表示 */
+      .delete-btn { display: none; }
+    }
+  </style>
+
+  <!-- QRCode ライブラリ（CDN） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <h1>CSVからQRコード生成・印刷</h1>
+  <p>座標取得ツールで生成した座標データ(csv)でＱＲコードを一括生成します。【A4印刷用】</p>
+
+  <!-- 一括生成の使い方 -->
+  <div id="bulkInstructions">
+    【使い方：一括生成】<br>
+    １：[ファイルを選択]ボタンを押して棚ＩＤのcsvデータをインポートする<br>
+    ２：ＱＲコードが自動生成されます（大量のＱＲコード生成には数秒かかります）<br>
+    ３：[印刷]ボタンを押してＡ４サイズで印刷<br>
+  </div>
+
+  <!-- CSV一括生成用ボタン -->
+  <input type="file" id="csvFileInput" accept=".csv">
+  <button id="clearButton">クリア</button>
+  <button id="printButton">印刷</button>
+
+  <!-- 個別生成の使い方 -->
+  <div id="individualInstructions">
+    <br>
+    【使い方：個別生成】<br>
+    １：テキストＢＯＸに棚ＩＤを入力 ※座標取得ツールで生成した座標データからＩＤをコピーして貼り付けてください<br>
+    ２：[生成する]ボタンを押す ※複数のＱＲを生成する際はこの作業を繰り返してください<br>
+    ３：[印刷]ボタンを押してＡ４サイズで印刷<br>
+  </div>
+
+  <!-- 個別生成用テキスト入力（横幅は半角20文字分、最大入力文字数を21へ変更）とボタン -->
+  <input type="text" id="qrInput" size="20" maxlength="21" placeholder="棚IDを入力">
+  <button id="generateButton">生成する</button>
+  <button id="individualPrintButton">印刷</button>
+
+  <!-- QRコードが追加されるエリア -->
+  <div id="qrContainer"></div>
+
+  <!-- カスタムモーダル（初期は非表示） -->
+  <div id="printModal">
+    <div class="modal-content">
+      <p id="modalMessage"></p>
+      <button id="modalOk">OK</button>
+      <button id="modalCancel">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 機能スクリプト（script_qr.js を統合） -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+
+    const csvInput = document.getElementById('csvFileInput');
+    const clearButton = document.getElementById('clearButton');
+    const printButton = document.getElementById('printButton');
+    const generateButton = document.getElementById('generateButton');
+    const individualPrintButton = document.getElementById('individualPrintButton');
+    const qrInput = document.getElementById('qrInput');
+    const qrContainer = document.getElementById('qrContainer');
+
+    // モーダル用要素
+    const printModal = document.getElementById('printModal');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalOk = document.getElementById('modalOk');
+    const modalCancel = document.getElementById('modalCancel');
+
+    // CSV選択時にテキストボックスをクリアする
+    csvInput.addEventListener('click', function() {
+      qrInput.value = "";
+      alert("大量のQRコード生成には数秒～数十秒の時間がかかります");
+    });
+
+    // 補助関数：現在のページ（qr-page）を取得（存在しなければ新規作成、または最後のqr-pageに子要素が30未満なら利用）
+    function getCurrentPage() {
+      let pages = qrContainer.getElementsByClassName('qr-page');
+      let currentPage = pages[pages.length - 1];
+      if (!currentPage || currentPage.children.length >= 30) {
+        currentPage = document.createElement('div');
+        currentPage.className = 'qr-page';
+        qrContainer.appendChild(currentPage);
+      }
+      return currentPage;
+    }
+
+    /**
+     * 補助関数：棚IDの各部分からキャプションHTMLを作成
+     * @param {String} cellText - QR生成に使用する文字列（例："00442_1F_1_000000" または "00442_1F_20250409_1558"）
+     * @param {String} [overrideDate] - CSV1行目から抽出した、日付表示用文字列（YYYY/MM/DD）。指定があればこれを使用
+     */
+    function createCaption(cellText, overrideDate) {
+      const parts = cellText.split('_');
+      const storeNumber = parts[0];
+      const floor = parts[1] || "";
+      // overrideDateが指定されていればそちらを利用。なければparts[2]をそのまま処理
+      let dateText = "";
+      if (overrideDate) {
+        dateText = overrideDate;
+      } else {
+        const datePart = parts[2] || "";
+        if (datePart.length === 8) {
+          dateText = datePart.substring(0, 4) + "/" +
+                     datePart.substring(4, 6) + "/" +
+                     datePart.substring(6, 8);
+        }
+      }
+      // キャプション内は、元のparts[2]（該当する場合）も表示（赤字）し、改行後に整形済み日付を追加
+      return storeNumber + "_" +
+             '<span style="color:red;">' + floor + '</span>_' +
+             '<span style="color:red;">' + (parts[2] || "") + '</span>' +
+             '<br>' +
+             '<span class="qr-date">' + dateText + '</span>';
+    }
+
+    // 補助関数：指定クラスの要素をqrContainer内から削除する（削除後、空のqr-pageも削除）
+    function removeElementsByClass(className) {
+      const elements = qrContainer.getElementsByClassName(className);
+      Array.from(elements).forEach(el => el.parentNode.removeChild(el));
+      cleanEmptyPages();
+    }
+
+    // 補助関数：空のqr-page（子要素が0）を削除する
+    function cleanEmptyPages() {
+      const pages = qrContainer.getElementsByClassName('qr-page');
+      Array.from(pages).forEach(page => {
+        if (page.children.length === 0) {
+          page.parentNode.removeChild(page);
+        }
+      });
+    }
+
+    // カスタムモーダルの表示関数
+    function showPrintModal(message, callback) {
+      modalMessage.textContent = message;
+      printModal.style.display = "flex";
+      modalOk.onclick = function() {
+        printModal.style.display = "none";
+        callback(true);
+      };
+      modalCancel.onclick = function() {
+        printModal.style.display = "none";
+        callback(false);
+      };
+    }
+
+    // CSVファイルによる一括生成
+    csvInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+
+        // ※1行目（index 0）を参照情報として抽出（例：店番_階_yyyymmdd_hhmm）
+        const referenceData = lines[0].trim();
+        let globalFormattedDate = "";
+        const refParts = referenceData.split('_');
+        if (refParts.length >= 3 && refParts[2].length === 8) {
+          globalFormattedDate = refParts[2].substring(0, 4) + "/" +
+                                refParts[2].substring(4, 6) + "/" +
+                                refParts[2].substring(6, 8);
+        }
+
+        // 2行目（ヘッダ）を除去し、3行目以降をデータ行とする
+        const dataLines = lines.slice(2);
+
+        // 既存の一括生成済み（bulk）QRコードがあれば削除
+        removeElementsByClass('bulk');
+
+        dataLines.forEach(function(line, index) {
+          if (line.trim() === "") return;
+          // 30個ごとに新しいページ（qr-page）を作成
+          if (index % 30 === 0) {
+            var pageDiv = document.createElement('div');
+            pageDiv.className = 'qr-page';
+            qrContainer.appendChild(pageDiv);
+          }
+          // 各行の先頭セル（棚ID）を利用
+          const cellText = line.split(',')[0].trim();
+          if (cellText) {
+            // 一括生成されたQRコードは「bulk」クラスを追加
+            const qrItem = document.createElement('div');
+            qrItem.className = "qr-item bulk";
+
+            const qrDiv = document.createElement('div');
+            qrDiv.className = "qr-code";
+            qrItem.appendChild(qrDiv);
+
+            const caption = document.createElement('div');
+            caption.className = "qr-caption";
+            // ヘッダから抽出した日付（globalFormattedDate）をキャプションに反映
+            caption.innerHTML = createCaption(cellText, globalFormattedDate);
+            qrItem.appendChild(caption);
+
+            // 最後に生成されたqr-pageに追加
+            let currentPages = qrContainer.getElementsByClassName('qr-page');
+            let currentPage = currentPages[currentPages.length - 1];
+            currentPage.appendChild(qrItem);
+
+            // QRCode.jsでQRコードを生成
+            new QRCode(qrDiv, {
+              text: cellText,
+              width: 132,
+              height: 132
+            });
+          }
+        });
+        // 処理後、ファイル入力をリセット
+        csvInput.value = "";
+      };
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    // クリアボタン：すべてのQRコードを削除
+    clearButton.addEventListener('click', function() {
+      qrContainer.innerHTML = "";
+    });
+
+    // 共通の印刷処理（カスタムモーダルを利用）
+    function executePrint() {
+      const firstQR = qrContainer.querySelector('.qr-item');
+      if (firstQR) {
+        const caption = firstQR.querySelector('.qr-caption');
+        if (caption) {
+          const text = caption.textContent || "";
+          const storeNumber = text.substring(0, 5);
+          const msg = `あなたの店舗の店番は【${storeNumber}】で間違いないですか？`;
+          showPrintModal(msg, function(confirmed) {
+            if (confirmed) {
+              alert("Ａ４、カラー、余白無し、倍率100% で印刷してください");
+              window.print();
+            }
+          });
+          return;
+        }
+      }
+      // QRコードが存在しなければ通常印刷
+      alert("Ａ４、カラー、余白無し、倍率100% で印刷してください");
+      window.print();
+    }
+
+    // 印刷ボタン（グローバル）のイベント
+    printButton.addEventListener('click', executePrint);
+
+    // 個別生成用印刷ボタンのイベント
+    individualPrintButton.addEventListener('click', executePrint);
+
+    // 個別生成ボタン押下時の処理
+    generateButton.addEventListener('click', function() {
+      const shelfID = qrInput.value.trim();
+
+      // 棚IDの正規表現： 数字5桁_（地上階：1～2桁の数字＋F または 地下階：B＋1桁の数字）_[0-9]{1,4}_[0-9]{6}
+      const shelfIDPattern = /^\d{5}_(?:[1-9]\d?F|B[1-9])_[0-9]{1,4}_[0-9]{6}$/;
+      if (!shelfIDPattern.test(shelfID)) {
+        alert("棚IDと異なるテキストが入力されています");
+        return;
+      }
+
+      // 既に個別生成されたQRコードが存在する場合、最初の個別QRの店舗番号と比較
+      const existingIndividual = qrContainer.querySelector('.qr-item.individual');
+      if (existingIndividual) {
+        const existingCaption = existingIndividual.querySelector('.qr-caption');
+        if (existingCaption) {
+          const existingStore = existingCaption.textContent.trim().substring(0, 5);
+          const newStore = shelfID.substring(0, 5);
+          if (existingStore !== newStore) {
+            alert("複数の店舗番号が混在するＱＲは生成はできません");
+            return;
+          }
+        }
+      }
+
+      // 一括生成されたQRコード（bulk）が存在する場合は削除確認アラート
+      if (qrContainer.querySelector('.bulk')) {
+        if (!confirm("生成済みQRコードを削除します。よろしいですか？")) {
+          qrInput.value = "";
+          return;
+        } else {
+          removeElementsByClass('bulk');
+        }
+      }
+
+      // 個別生成の場合、既存の個別QRコードはそのまま残す
+      const currentPage = getCurrentPage();
+
+      // 個別生成用のqr-item作成
+      const qrItem = document.createElement('div');
+      qrItem.className = "qr-item individual";
+
+      // 行コンテナ（フレックスレイアウト：左側にQR＋キャプション、右側に削除ボタン）
+      const rowDiv = document.createElement('div');
+      rowDiv.className = "qr-item-row";
+      rowDiv.style.display = "flex";
+      rowDiv.style.alignItems = "center";
+
+      // 左側コンテンツ（QRコードとキャプション）
+      const contentDiv = document.createElement('div');
+      contentDiv.className = "qr-content";
+
+      const qrDiv = document.createElement('div');
+      qrDiv.className = "qr-code";
+      contentDiv.appendChild(qrDiv);
+
+      const caption = document.createElement('div');
+      caption.className = "qr-caption";
+      caption.innerHTML = createCaption(shelfID);
+      contentDiv.appendChild(caption);
+
+      // 右側：削除ボタン（印刷時は非表示）
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "削除";
+      deleteBtn.addEventListener('click', function() {
+        qrItem.parentNode.removeChild(qrItem);
+        cleanEmptyPages();
+      });
+
+      // 組み立て
+      rowDiv.appendChild(contentDiv);
+      rowDiv.appendChild(deleteBtn);
+      qrItem.appendChild(rowDiv);
+
+      // 現在のページに追加し、QRコード生成
+      currentPage.appendChild(qrItem);
+      new QRCode(qrDiv, {
+        text: shelfID,
+        width: 132,
+        height: 132
+      });
+
+      // 個別生成後、テキストボックスをクリア
+      qrInput.value = "";
+    });
+  });
+  </script>
+</body>
+</html>

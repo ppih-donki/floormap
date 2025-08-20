@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI-MAP座標取得ツール（全店統一）</title>
+  <link rel="stylesheet" href="asetts/style_xy.css" />
+  <style>
+    /* 補助：右上コントロールの見出し */
+    .ctrl-group { display:inline-flex; align-items:center; gap:6px; margin-left:14px; }
+    .ctrl-title { font-size:12px; color:#555; margin-right:4px; }
+    .square { min-width:28px; height:28px; }
+    .zoomPct { min-width:54px; text-align:center; padding:4px 6px; border:1px solid #ccc; border-radius:4px; background:#fff; }
+    @media (max-width: 900px){
+      .ctrl-group { display:block; margin:6px 0 0 0; }
+      .ctrl-title { display:block; margin:0 0 4px 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 固定ヘッダー -->
+  <div id="fixedHeader">
+    <div class="inner">
+      <!-- 1段目：左=主要ボタン / 右=ズーム&マーカー -->
+      <div class="header-row header-top">
+        <div class="row-left">
+          <div id="overlayImportContainer">
+            <button id="overlayImportCSVButton">座標データインポート(CSV)</button>
+            <input type="file" id="overlayImportCSV" accept=".csv" style="display:none;">
+          </div>
+          <button id="overlayClearAll">全ての座標をクリア</button>
+          <button id="overlayExportCSV">座標データエクスポート(CSV)</button>
+          <button id="overlayQrGenerate">座標QR生成</button>
+        </div>
+        <div class="row-right">
+          <!-- 画像ズーム（CAD/MAPの表示に適用） -->
+          <div class="ctrl-group" aria-label="画像ズーム">
+            <div class="ctrl-title">画像ズーム（CAD/MAP表示）</div>
+            <button id="zoomOutBtn" class="square" title="画像をズームアウト">−</button>
+            <button id="zoomInBtn" class="square" title="画像をズームイン">＋</button>
+            <div id="zoomIndicator" class="zoomPct" title="クリックで100%に戻す">100%</div>
+          </div>
+
+          <!-- マーカーサイズ（直径と数字に適用） -->
+          <div class="ctrl-group" aria-label="マーカーサイズ">
+            <div class="ctrl-title">マーカーサイズ（直径と数字）</div>
+            <button id="markerSizeMinusBtn" class="square" title="マーカーを小さく">−</button>
+            <button id="markerSizePlusBtn"  class="square" title="マーカーを大きく">＋</button>
+            <div id="markerSizeIndicator" class="zoomPct" title="クリックで初期サイズに戻す">15px</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2段目：店舗 / フロア / 表示画像 / 次の発番 / 直近削除 -->
+      <div class="header-row header-bottom">
+        <div class="row-left">
+          <!-- 店舗選択（5桁固定の選択式） -->
+          <div class="field">
+            <label for="storeSelector">店舗：</label>
+            <select id="storeSelector">
+              <option value="00092">00092</option>
+              <option value="00278">00278</option>
+              <option value="00373">00373</option>
+              <option value="00442">00442</option>
+              <option value="00555">00555</option>
+            </select>
+          </div>
+
+          <!-- フロア選択 -->
+          <div class="field">
+            <label for="floorSelector">フロア：</label>
+            <select id="floorSelector">
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="1F" selected>1F</option>
+              <option value="2F">2F</option>
+              <option value="3F">3F</option>
+              <option value="4F">4F</option>
+              <option value="5F">5F</option>
+              <option value="6F">6F</option>
+              <option value="7F">7F</option>
+              <option value="8F">8F</option>
+              <option value="9F">9F</option>
+              <option value="10F">10F</option>
+            </select>
+          </div>
+
+          <!-- 表示画像選択 -->
+          <div id="viewSelectorContainer" class="field">
+            <label for="viewSelector">表示画像：</label>
+            <select id="viewSelector">
+              <option value="cad" selected>CAD</option>
+              <option value="map">MAP</option>
+            </select>
+          </div>
+
+          <div id="overlayStartNumberContainer" class="field">
+            <label for="overlayStartNumber">次の発番：</label>
+            <input type="number" id="overlayStartNumber" value="1" min="1" readonly>
+          </div>
+          <button id="overlayDeleteLast">直近の座標を削除</button>
+        </div>
+        <div class="row-right"><!-- 予備スペース --></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 画面本体 -->
+  <div id="app">
+    <!-- CADフレーム -->
+    <div id="cadContainer" class="scrollFrame">
+      <div id="cadBase" class="base">
+        <div id="cadSizer" class="sizer"></div>
+        <div id="cadZoomLayer" class="zoomLayer">
+          <img id="storeImage" src="" alt="店舗図面（CAD）">
+          <div id="markerContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAPフレーム -->
+    <div id="mapContainer" class="scrollFrame hidden">
+      <div id="mapBase" class="base">
+        <div id="mapSizer" class="sizer"></div>
+        <div id="mapZoomLayer" class="zoomLayer">
+          <img id="mapImage" src="" alt="店舗図面（MAP）">
+          <div id="mapMarkerContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 座標リスト -->
+    <div id="coordList"></div>
+
+    <!-- カーソル近傍の座標表示 -->
+    <div id="coordDisplay"></div>
+  </div>
+
+  <script src="asetts/script_xy.js"></script>
+  <script>
+    document.getElementById('overlayQrGenerate').addEventListener('click', function() {
+      window.open("create_qr.html", "_blank");
+    });
+  </script>
+</body>
+</html>

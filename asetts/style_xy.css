@@ -1,0 +1,123 @@
+/*
+ * style_xy.css
+ * 固定ヘッダーを2段構成にして、上段に主要ボタン、右端にズーム＋％表示。
+ * 下段に 表示画像セレクタ／次の発番／直近削除。JSは既存のまま動作。
+ */
+
+:root{
+  /* ヘッダー高さは2段用に少し高めに確保 */
+  --header-h: 96px;
+  --gap: 8px;
+  --frame-border:#ccc;
+  --btn-bg:#f6f6f6;
+  --btn-bd:#d0d0d0;
+  --btn-radius: 6px;
+}
+
+html, body { margin:0; padding:0; }
+body { font-family: sans-serif; }
+
+/* 固定ヘッダー */
+#fixedHeader{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid #ddd;
+}
+#fixedHeader .inner{
+  height: var(--header-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+}
+
+/* 1段ごとの行レイアウト */
+.header-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.header-row .row-left,
+.header-row .row-right{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-bottom .row-left .field{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ボタン共通 */
+button{
+  padding: 6px 10px;
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--btn-bd);
+  background: var(--btn-bg);
+  cursor: pointer;
+}
+button:hover{ filter: brightness(0.97); }
+button:active{ filter: brightness(0.92); }
+button:disabled{ opacity: .5; cursor: default; }
+
+/* ズームUI（右上の小さな四角＋表示％） */
+button.square{
+  width: 24px; height: 24px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 600; line-height: 1;
+}
+.zoomPct{
+  min-width: 40px; text-align: right; user-select: none; padding: 0 4px;
+}
+
+/* 本体はヘッダー分だけ下げる */
+#app{ padding-top: calc(var(--header-h) + var(--gap)); }
+
+/* コンテンツフレーム（90%×90%） */
+.scrollFrame{
+  width: 90vw;
+  height: calc(90vh - var(--header-h) - var(--gap));
+  min-height: 320px;
+  margin: 0 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--frame-border);
+  background: #fff;
+  position: relative;
+  box-sizing: border-box;
+  cursor: default;
+}
+
+.base{ position: relative; width: 100%; }
+.zoomLayer{ position: relative; transform-origin: 0 0; z-index: 1; }
+.sizer{
+  position: absolute; top:0; left:0; width:0; height:0;
+  visibility: hidden; pointer-events: none; z-index: 0;
+}
+
+.base img{ width:100%; height:auto; display:block; border-bottom:1px solid #eee; }
+
+#markerContainer, #mapMarkerContainer{
+  position: absolute; top:0; left:0; pointer-events: none;
+}
+
+/* 座標リスト＆プレビュー */
+#coordList{
+  width: 90vw; margin: 10px auto; min-height: 120px;
+  border: 1px solid #ccc; padding: 8px; box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+#coordDisplay{
+  position: fixed; pointer-events: none;
+  background: rgba(0,0,0,0.7); color: #fff;
+  padding: 2px 5px; border-radius: 3px; font-size: 12px;
+}
+
+/* 汎用 */
+.hidden{ display:none !important; }
+.grabbing{ cursor: grabbing !important; }
