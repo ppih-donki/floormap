@@ -85,30 +85,64 @@ window.addEventListener("DOMContentLoaded", function() {
     return `${info.family}|${info.weight}`;
   }
 
-  // 4) 円に収まる最大フォントサイズを2分探索で求める
+  // ★ 追加: 桁数に応じた padding と 倍率のポリシー
+  function paddingByLength(len){
+    // 4桁以上は余白ゼロで収めやすくする
+    if (len >= 4) return 0;
+    if (len === 3) return 1;
+    return 1; // 1〜2桁は既定（従来相当）
+  }
+  function scaleMultiplierByLength(len){
+    // 多少大きく見せる試み。ただし最終的に「はみ出しNG」をチェックして安全にフォールバック
+    if (len >= 4) return 1.15;
+    if (len === 3) return 1.05;
+    return 1.0;
+  }
+
+  // 4) 円に収まる最大フォントサイズ + 「倍率補正（安全チェック付き）」を求める
   function computeFontSizeToFit({ text, diameter, padding = 1, fontInfo }){
-    const inner = Math.max(1, diameter - padding*2);
-    const cacheKey = `${text}|${diameter}|${fontKeyFromInfo(fontInfo)}|${padding}`;
+    const t = String(text);
+    const len = t.length;
+
+    // 桁数に応じて padding を「削減」する（呼び出し元の指定より小さくするだけ）
+    const effPadding = Math.min(padding, paddingByLength(len));
+    const inner = Math.max(1, diameter - effPadding*2);
+
+    const cacheKey = `${t}|${diameter}|${fontKeyFromInfo(fontInfo)}|${effPadding}`;
     const cached = fitCache.get(cacheKey);
     if (cached) return cached;
 
+    // まずは厳密フィット（はみ出し無し）サイズを2分探索で求める
     let low = 1, high = inner; // px
-    // 先に指数的に上限を詰める必要は特にない（上限=innerで十分）
     while (high - low > 0.25){
       const mid = (low + high) / 2;
-      fitMeasureSpan.textContent = text;
+      fitMeasureSpan.textContent = t;
       fitMeasureSpan.style.fontFamily = fontInfo.family;
       fitMeasureSpan.style.fontWeight = fontInfo.weight;
       fitMeasureSpan.style.fontSize = `${mid}px`;
       fitMeasureSpan.style.lineHeight = '1';
-
       const rect = fitMeasureSpan.getBoundingClientRect();
       const ok = (rect.width <= inner && rect.height <= inner);
       if (ok) low = mid; else high = mid;
     }
-    const result = Math.max(1, Math.floor(low));
-    fitCache.set(cacheKey, result);
-    return result;
+    let fitted = Math.max(1, Math.floor(low));
+
+    // 次に倍率補正を試みる（はみ出しNGの場合は元に戻す）
+    const mult = scaleMultiplierByLength(len);
+    if (mult > 1.0){
+      const trial = Math.floor(fitted * mult);
+      fitMeasureSpan.textContent = t;
+      fitMeasureSpan.style.fontFamily = fontInfo.family;
+      fitMeasureSpan.style.fontWeight = fontInfo.weight;
+      fitMeasureSpan.style.fontSize = `${trial}px`;
+      fitMeasureSpan.style.lineHeight = '1';
+      const rect = fitMeasureSpan.getBoundingClientRect();
+      const ok = (rect.width <= inner && rect.height <= inner);
+      if (ok) fitted = trial; // 収まるなら採用
+    }
+
+    fitCache.set(cacheKey, fitted);
+    return fitted;
   }
 
   // ====== DOM ======
@@ -301,7 +335,7 @@ window.addEventListener("DOMContentLoaded", function() {
         const fontPx = computeFontSizeToFit({
           text: String(coord.id),
           diameter: markerSizePx,
-          padding: 1,           // 円との余白（必要なら2〜3に調整）
+          padding: 1,           // 呼び出しは従来通り。関数内で桁数に応じて「削減」されます
           fontInfo
         });
 
@@ -458,7 +492,7 @@ window.addEventListener("DOMContentLoaded", function() {
         const fontPx = computeFontSizeToFit({
           text: String(coord.id),
           diameter: markerSizePx,
-          padding: 1,
+          padding: 1, // 呼び出しは従来通り。関数内で桁数に応じて「削減」されます
           fontInfo
         });
 
