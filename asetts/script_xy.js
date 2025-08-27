@@ -94,7 +94,7 @@ window.addEventListener("DOMContentLoaded", function() {
   }
   function scaleMultiplierByLength(len){
     // 多少大きく見せる試み。ただし最終的に「はみ出しNG」をチェックして安全にフォールバック
-    if (len >= 4) return 1.15;
+    if (len >= 4) return 1.25;
     if (len === 3) return 1.05;
     return 1.0;
   }
@@ -873,3 +873,4 @@ window.addEventListener("DOMContentLoaded", function() {
   updateSizer(mapContainer, mapSizer, mapZoom);
   render();
 });
+
