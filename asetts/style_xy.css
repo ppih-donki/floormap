@@ -15,7 +15,21 @@
 }
 
 html, body { margin:0; padding:0; }
-body { font-family: sans-serif; }
+
+/* === 全体フォント（方式A） ===
+   - 中間の太さ: 500（必要に応じて 600 に変更可）
+   - 数字の桁ブレ防止: tabular-nums / lining-nums
+   - 可能な限りシステムフォント優先（高速表示）
+*/
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP",
+               "Yu Gothic UI", Meiryo, "Hiragino Kaku Gothic ProN", Arial, sans-serif;
+  font-weight: 500; /* ←中間。見え方に応じて 600 も試せます */
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1; /* 対応していない環境向けフォールバック指定 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 /* 固定ヘッダー */
 #fixedHeader{
