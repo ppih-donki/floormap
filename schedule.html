@@ -10,9 +10,9 @@
       --text:#111827;
       --muted:#6b7280;
       --bg:#ffffff;
-      --cellh:110px;
-      --barh:22px;
-      --gap:6px;
+      --cellh:96px;     /* ↓ 全体を少し圧縮 */
+      --barh:20px;      /* ↓ */
+      --gap:5px;        /* ↓ */
       --radius:10px;
       --font: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       --topH: 0px; /* JSで上部固定エリア高さを入れる */
@@ -27,6 +27,8 @@
       color:var(--text);
       background:#f9fafb;
       overflow:hidden; /* ページ全体はスクロールさせない */
+      font-size:13px;  /* ★ 全テキストの基準を小さく */
+      line-height:1.35;
     }
 
     /* ===== 上部固定エリア ===== */
@@ -43,7 +45,7 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:14px 16px;
+      padding:12px 14px; /* ↓ */
       background:var(--bg);
       border-bottom:1px solid var(--border);
     }
@@ -55,12 +57,12 @@
       min-width:0;
     }
     .title h1{
-      font-size:16px;
+      font-size:14px; /* ↓ */
       margin:0;
       font-weight:700;
     }
     .title .ym{
-      font-size:14px;
+      font-size:12px; /* ↓ */
       color:var(--muted);
       font-weight:600;
     }
@@ -68,7 +70,7 @@
     .wrap{
       max-width:1100px;
       margin:0 auto;
-      padding:12px 12px;
+      padding:10px 12px; /* ↓ */
     }
 
     /* ===== 月別ロードマップ（固定表示） ===== */
@@ -76,8 +78,8 @@
       background:#e0f2fe; /* 水色 */
       border:1px solid var(--border);
       border-radius:14px;
-      padding:12px;
-      margin:0 0 12px;
+      padding:10px;      /* ↓ */
+      margin:0 0 10px;    /* ↓ */
     }
     .roadmapHead{
       display:flex;
@@ -88,12 +90,12 @@
     }
     .roadmapTitle{
       margin:0;
-      font-size:13px;
+      font-size:12px; /* ↓ */
       font-weight:800;
       color:var(--text);
     }
     .roadmapNote{
-      font-size:12px;
+      font-size:11px; /* ↓ */
       color:var(--muted);
       font-weight:600;
     }
@@ -111,7 +113,7 @@
       gap:10px;
       border:1px solid var(--border);
       border-radius:12px;
-      padding:10px 10px;
+      padding:9px 9px; /* ↓ */
       background:#fff;
       min-width:0;
     }
@@ -119,15 +121,15 @@
       background:#d1d5db; /* 濃いグレー */
     }
     .roadmapWhen{
-      min-width:110px;
-      font-size:12px;
+      min-width:105px; /* ↓ */
+      font-size:11px;  /* ↓ */
       font-weight:800;
       color:#111827;
       line-height:1.4;
       flex:0 0 auto;
     }
     .roadmapWhat{
-      font-size:12px;
+      font-size:11px; /* ↓ */
       color:var(--text);
       font-weight:700;
       line-height:1.5;
@@ -136,7 +138,7 @@
     .roadmapTag{
       display:inline-block;
       margin-top:6px;
-      font-size:11px;
+      font-size:10px; /* ↓ */
       font-weight:800;
       color:#2563eb;
       background:#eff6ff;
@@ -160,20 +162,20 @@
     .scrollWrap{
       max-width:1100px;
       margin:0 auto;
-      padding:12px 12px 24px;
+      padding:10px 12px 22px; /* ↓ */
     }
 
     /* 月セクション */
     .monthSection{
       background:transparent;
-      margin-bottom:14px;
+      margin-bottom:12px; /* ↓ */
     }
     .monthHeader{
       display:flex;
       align-items:baseline;
       justify-content:space-between;
       gap:10px;
-      padding:10px 12px;
+      padding:9px 11px; /* ↓ */
       background:#fff;
       border:1px solid var(--border);
       border-radius:14px 14px 0 0;
@@ -181,12 +183,12 @@
     }
     .monthTitle{
       margin:0;
-      font-size:14px;
+      font-size:13px; /* ↓ */
       font-weight:800;
       color:var(--text);
     }
     .monthSub{
-      font-size:12px;
+      font-size:11px; /* ↓ */
       color:var(--muted);
       font-weight:600;
     }
@@ -199,15 +201,20 @@
       border-bottom:none;
       border-top:none;
       overflow:hidden;
+      width:100%;         /* ★ 横幅に収める */
+      max-width:100%;
+      box-sizing:border-box;
     }
     .dow div{
-      padding:10px 10px;
-      font-size:12px;
+      padding:8px 6px;     /* ↓ */
+      font-size:11px;      /* ↓ */
       color:var(--muted);
       font-weight:700;
       border-right:1px solid var(--border);
       background:#fff;
       text-align:center;
+      min-width:0;
+      box-sizing:border-box;
     }
     .dow div:last-child{ border-right:none; }
 
@@ -220,20 +227,24 @@
       border-radius:0 0 14px 14px;
       overflow:hidden;
       position:relative;
+      width:100%;          /* ★ 横幅に収める */
+      max-width:100%;
+      box-sizing:border-box;
     }
     .cell{
       min-height:var(--cellh);
       border-right:1px solid var(--border);
       border-top:1px solid var(--border);
-      padding:8px 8px 6px;
+      padding:6px 6px 5px; /* ↓ */
       position:relative;
       background:#fff;
       min-width:0;
+      box-sizing:border-box;
     }
     .cell:nth-child(7n){ border-right:none; }
 
     .date{
-      font-size:12px;
+      font-size:11px; /* ↓ */
       font-weight:700;
       display:flex;
       justify-content:space-between;
@@ -243,15 +254,15 @@
     .date .out{ color:#9ca3af; }
     .today{
       display:inline-block;
-      width:8px;height:8px;
+      width:7px;height:7px; /* ↓ */
       border-radius:999px;
       background:#2563eb;
-      margin-left:6px;
+      margin-left:5px; /* ↓ */
       vertical-align:middle;
     }
 
     .lanes{
-      margin-top:8px;
+      margin-top:6px; /* ↓ */
       display:flex;
       flex-direction:column;
       gap:var(--gap);
@@ -262,8 +273,8 @@
       border-radius:var(--radius);
       display:flex;
       align-items:center;
-      padding:0 10px;
-      font-size:12px;
+      padding:0 8px;     /* ↓ */
+      font-size:11px;    /* ↓ */
       font-weight:700;
       color:#fff;
       white-space:nowrap;
@@ -280,9 +291,9 @@
       background:#fff;
       border:1px solid var(--border);
       border-radius:14px;
-      padding:12px;
+      padding:10px;     /* ↓ */
       color:var(--muted);
-      font-size:12px;
+      font-size:11px;   /* ↓ */
       line-height:1.5;
     }
     .hint code{
@@ -291,134 +302,121 @@
       padding:2px 6px;
       border-radius:8px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
+      font-size:11px; /* ↓ */
     }
 
     /* =========================================================
        モバイル最適化（レスポンシブ）
-       - 7列のままだと文字とバーが読めないので「横スクロールで月を見る」方式
-       - 上部固定エリアも詰める（タイトル/ロードマップ）
+       - 7列を維持しつつ「横スクロール無し」で収める方向に圧縮
        ========================================================= */
     @media (max-width: 720px){
       :root{
-        --cellh: 74px;
-        --barh: 18px;
-        --gap: 4px;
-        --radius: 8px;
+        --cellh: 64px;  /* ★ 7列が収まりやすいように圧縮 */
+        --barh: 16px;
+        --gap: 3px;
+        --radius: 7px;
+      }
+
+      body{
+        font-size:11px; /* ★ 全体をさらに小さく */
       }
 
       header{
-        padding:10px 12px;
+        padding:9px 10px;
       }
       .title h1{
-        font-size:14px;
+        font-size:12px;
       }
       .title .ym{
-        font-size:12px;
+        font-size:11px;
       }
 
       .wrap{
-        padding:10px 12px;
+        padding:8px 10px;
       }
       .roadmap{
-        padding:10px;
+        padding:8px;
         border-radius:12px;
       }
       .roadmapTitle{
-        font-size:12px;
+        font-size:11px;
       }
       .roadmapNote{
-        font-size:11px;
-        line-height:1.4;
+        font-size:10px;
+        line-height:1.35;
       }
       .roadmapItem{
-        padding:8px 8px;
+        padding:7px 7px;
       }
       .roadmapWhen{
-        min-width:88px;
-        font-size:11px;
+        min-width:86px;
+        font-size:10px;
       }
       .roadmapWhat{
-        font-size:11px;
+        font-size:10px;
       }
       .roadmapTag{
-        font-size:10px;
-        padding:2px 7px;
+        font-size:9px;
+        padding:2px 6px;
       }
 
-      /* 月セクションをカードにして横スクロール可能に */
-      .monthSection{
-        margin-bottom:12px;
-      }
       .monthHeader{
-        padding:8px 10px;
+        padding:8px 9px;
         border-radius:12px 12px 0 0;
       }
       .monthTitle{
-        font-size:13px;
+        font-size:12px;
       }
       .monthSub{
-        font-size:11px;
+        font-size:10px;
       }
 
-      /* ここがポイント：7列グリッドを維持しつつ、月単位で横スクロール */
+      /* ★ 横スクロール用の固定幅を撤廃して、常に横幅に収める */
       .dow, .grid{
-        width: 980px;              /* モバイルでの可読性確保（1セル幅を確保） */
-        max-width:none;
-      }
-
-      /* 月の中だけ横スクロール */
-      .dow{
-        overflow-x:auto;
-        overflow-y:hidden;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-      }
-      .grid{
-        overflow-x:auto;
-        overflow-y:hidden;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
+        width:100%;
+        max-width:100%;
       }
 
       .dow div{
-        padding:8px 6px;
-        font-size:11px;
+        padding:6px 2px;
+        font-size:10px;
       }
       .cell{
-        padding:6px 6px 5px;
+        padding:5px 4px 4px;
       }
-
       .date{
-        font-size:11px;
-      }
-      .today{
-        width:7px;height:7px;
-        margin-left:5px;
+        font-size:10px;
       }
       .bar{
-        font-size:11px;
-        padding:0 8px;
+        font-size:10px;
+        padding:0 6px;
       }
 
       .hint{
-        padding:10px;
+        padding:9px;
         border-radius:12px;
-        font-size:11px;
+        font-size:10px;
       }
       .hint code{
-        font-size:11px;
+        font-size:10px;
       }
     }
 
     /* さらに小さい端末 */
     @media (max-width: 420px){
       :root{
-        --cellh: 68px;
-        --barh: 17px;
+        --cellh: 58px;
+        --barh: 15px;
       }
-      .dow, .grid{
-        width: 1040px; /* より小さい画面ではセル幅をさらに確保 */
+      body{
+        font-size:10.5px; /* 微調整 */
+      }
+      .dow div{
+        font-size:9.5px;
+        padding:6px 1px;
+      }
+      .bar{
+        font-size:9.5px;
       }
     }
   </style>
