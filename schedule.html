@@ -243,12 +243,18 @@
     }
     .cell:nth-child(7n){ border-right:none; }
 
+    /* ★ 月外セルは空白化（前後月の日付を出さない） */
+    .cell.outside{
+      background:#f9fafb;
+    }
+
     .date{
       font-size:11px; /* ↓ */
       font-weight:700;
       display:flex;
       justify-content:space-between;
       align-items:center;
+      min-height: 16px;
     }
     .date .num{ color:var(--text); }
     .date .out{ color:#9ca3af; }
@@ -307,7 +313,6 @@
 
     /* =========================================================
        モバイル最適化（レスポンシブ）
-       - 7列を維持しつつ「横スクロール無し」で収める方向に圧縮
        ========================================================= */
     @media (max-width: 720px){
       :root{
@@ -371,7 +376,6 @@
         font-size:10px;
       }
 
-      /* ★ 横スクロール用の固定幅を撤廃して、常に横幅に収める */
       .dow, .grid{
         width:100%;
         max-width:100%;
@@ -402,7 +406,6 @@
       }
     }
 
-    /* さらに小さい端末 */
     @media (max-width: 420px){
       :root{
         --cellh: 58px;
@@ -423,7 +426,6 @@
 </head>
 <body>
 
-  <!-- 上部固定（ヘッダー＋ロードマップ） -->
   <div class="topFixed" id="topFixed">
     <header>
       <div class="title">
@@ -443,7 +445,6 @@
     </div>
   </div>
 
-  <!-- 下部：カレンダー一覧のみスクロール -->
   <div class="scrollArea" id="scrollArea">
     <div class="scrollWrap">
       <div id="months"></div>
@@ -546,7 +547,7 @@ function splitEventIntoWeekSegments(ev){
 }
 
 function segmentsForMonth(cells, events){
-  const cellSet = new Set(cells.map(c => c.iso));
+  const cellSet = new Set(cells.filter(c => c.inMonth).map(c => c.iso)); /* ★ 当月セルのみ */
   const segs = [];
   for(const ev of events){
     for(const seg of splitEventIntoWeekSegments(ev)){
@@ -580,9 +581,11 @@ function placeSegmentsIntoLanes(cells, segs){
 
     for(let w=0; w<6; w++){
       const wk = weeks[w];
+
       const idxS = wk.findIndex(c => c.iso === seg.startISO);
       const idxE = wk.findIndex(c => c.iso === seg.endISO);
       if(idxS !== -1 && idxE !== -1){
+        if(!wk[idxS].inMonth && !wk[idxE].inMonth) break;
         weekIndex = w;
         startIdx = idxS;
         endIdx = idxE;
@@ -593,12 +596,33 @@ function placeSegmentsIntoLanes(cells, segs){
     if(weekIndex === -1){
       for(let w=0; w<6; w++){
         const wk = weeks[w];
+
+        const inMonthIdxs = wk.map((c,i)=> c.inMonth ? i : -1).filter(i=> i !== -1);
+        if(inMonthIdxs.length === 0) continue;
+
+        const firstIn = inMonthIdxs[0];
+        const lastIn  = inMonthIdxs[inMonthIdxs.length - 1];
+
+        const weekStart = parseISODate(wk[0].iso);
+        const weekEnd   = parseISODate(wk[6].iso);
+
+        const segStart = parseISODate(seg.startISO);
+        const segEnd   = parseISODate(seg.endISO);
+
+        const overlapsWeek = !(segEnd < weekStart || segStart > weekEnd);
+        if(!overlapsWeek) continue;
+
         const idxS = wk.findIndex(c => c.iso === seg.startISO);
         const idxE = wk.findIndex(c => c.iso === seg.endISO);
-        if(idxS !== -1 || idxE !== -1){
+
+        const sIdx = (idxS !== -1) ? idxS : 0;
+        const eIdx = (idxE !== -1) ? idxE : 6;
+
+        startIdx = Math.max(sIdx, firstIn);
+        endIdx   = Math.min(eIdx, lastIn);
+
+        if(startIdx <= endIdx){
           weekIndex = w;
-          startIdx = (idxS !== -1) ? idxS : 0;
-          endIdx = (idxE !== -1) ? idxE : 6;
           break;
         }
       }
@@ -704,19 +728,23 @@ function renderMonthInto(baseDate, mountEl){
   const todayISO = toISODate(new Date());
   for(const c of cells){
     const cell = document.createElement("div");
-    cell.className = "cell";
+    cell.className = "cell" + (c.inMonth ? "" : " outside");
 
     const dateRow = document.createElement("div");
     dateRow.className = "date";
 
     const num = document.createElement("div");
-    num.className = "num" + (c.inMonth ? "" : " out");
-    num.textContent = c.date.getDate();
-
-    if(c.iso === todayISO){
-      const dot = document.createElement("span");
-      dot.className = "today";
-      num.appendChild(dot);
+    if(c.inMonth){
+      num.className = "num";
+      num.textContent = c.date.getDate();
+      if(c.iso === todayISO){
+        const dot = document.createElement("span");
+        dot.className = "today";
+        num.appendChild(dot);
+      }
+    }else{
+      num.className = "num out";
+      num.textContent = ""; /* ★ 前後月の日付を表示しない */
     }
 
     const spacer = document.createElement("div");
@@ -727,7 +755,11 @@ function renderMonthInto(baseDate, mountEl){
 
     const lanes = document.createElement("div");
     lanes.className = "lanes";
-    lanes.dataset.iso = c.iso;
+    if(c.inMonth){
+      lanes.dataset.iso = c.iso; /* ★ 当月だけ識別 */
+    }else{
+      lanes.dataset.iso = "";    /* ★ 月外は描画対象外 */
+    }
 
     cell.appendChild(dateRow);
     cell.appendChild(lanes);
@@ -741,7 +773,12 @@ function renderMonthInto(baseDate, mountEl){
     const laneCount = weekLanes[w].length;
     for(let i=0; i<7; i++){
       const iso = weeks[w][i].iso;
+      const inMonth = weeks[w][i].inMonth;
+      if(!inMonth) continue; /* ★ 月外セルにはレーンを作らない */
+
       const lanesEl = gridEl.querySelector(`.lanes[data-iso="${iso}"]`);
+      if(!lanesEl) continue;
+
       for(let l=0; l<laneCount; l++){
         const ghost = document.createElement("div");
         ghost.className = "bar ghost";
@@ -756,6 +793,9 @@ function renderMonthInto(baseDate, mountEl){
 
     for(let i=p.startIdx; i<=p.endIdx; i++){
       const iso = wk[i].iso;
+      const inMonth = wk[i].inMonth;
+      if(!inMonth) continue; /* ★ 月外セルにはバーを出さない */
+
       const lanesEl = gridEl.querySelector(`.lanes[data-iso="${iso}"]`);
       if(!lanesEl) continue;
 
