@@ -10,12 +10,12 @@
       --text:#111827;
       --muted:#6b7280;
       --bg:#ffffff;
-      --cellh:96px;     /* ↓ 全体を少し圧縮 */
-      --barh:20px;      /* ↓ */
-      --gap:5px;        /* ↓ */
+      --cellh:96px;
+      --barh:20px;
+      --gap:5px;
       --radius:10px;
       --font: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      --topH: 0px; /* JSで上部固定エリア高さを入れる */
+      --topH: 0px;
     }
 
     html, body{
@@ -26,60 +26,51 @@
       font-family:var(--font);
       color:var(--text);
       background:#f9fafb;
-      overflow:hidden; /* ページ全体はスクロールさせない */
-      font-size:13px;  /* ★ 全テキストの基準を小さく */
+      overflow:hidden;
+      font-size:13px;
       line-height:1.35;
     }
 
-    /* ===== 上部固定エリア ===== */
     .topFixed{
       position:sticky;
       top:0;
-      z-index:20;
+      z-index:50;
       background:#f9fafb;
       border-bottom:1px solid var(--border);
     }
-
     header{
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .title{
+      max-width:1100px;
+      margin:0 auto;
+      padding:10px 12px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:12px 14px; /* ↓ */
-      background:var(--bg);
-      border-bottom:1px solid var(--border);
     }
-    .title{
-      display:flex;
-      align-items:baseline;
-      gap:10px;
-      flex-wrap:wrap;
-      min-width:0;
-    }
-    .title h1{
-      font-size:14px; /* ↓ */
+    h1{
       margin:0;
-      font-weight:700;
-    }
-    .title .ym{
-      font-size:12px; /* ↓ */
-      color:var(--muted);
-      font-weight:600;
+      font-size:16px;
+      font-weight:900;
+      letter-spacing:.01em;
     }
 
     .wrap{
       max-width:1100px;
       margin:0 auto;
-      padding:10px 12px; /* ↓ */
+      padding:10px 12px;
+      box-sizing:border-box;
     }
 
-    /* ===== 月別ロードマップ（固定表示） ===== */
     .roadmap{
-      background:#e0f2fe; /* 水色 */
+      background:#e0f2fe;
       border:1px solid var(--border);
       border-radius:14px;
-      padding:10px;      /* ↓ */
-      margin:0 0 10px;    /* ↓ */
+      padding:8px 10px;
+      margin:0 0 8px;
     }
     .roadmapHead{
       display:flex;
@@ -90,22 +81,17 @@
     }
     .roadmapTitle{
       margin:0;
-      font-size:12px; /* ↓ */
+      font-size:12px;
       font-weight:800;
       color:var(--text);
     }
-    .roadmapNote{
-      font-size:11px; /* ↓ */
-      color:var(--muted);
-      font-weight:600;
-    }
     .roadmapList{
-      margin:10px 0 0;
+      margin:8px 0 0;
       padding:0;
       list-style:none;
       display:grid;
       grid-template-columns: 1fr;
-      gap:8px;
+      gap:6px;
     }
     .roadmapItem{
       display:flex;
@@ -113,23 +99,23 @@
       gap:10px;
       border:1px solid var(--border);
       border-radius:12px;
-      padding:9px 9px; /* ↓ */
+      padding:9px 9px;
       background:#fff;
       min-width:0;
     }
     .roadmapItem.done{
-      background:#d1d5db; /* 濃いグレー */
+      background:#d1d5db;
     }
     .roadmapWhen{
-      min-width:105px; /* ↓ */
-      font-size:11px;  /* ↓ */
+      min-width:92px;
+      font-size:11px;
       font-weight:800;
       color:#111827;
       line-height:1.4;
       flex:0 0 auto;
     }
     .roadmapWhat{
-      font-size:11px; /* ↓ */
+      font-size:11px;
       color:var(--text);
       font-weight:700;
       line-height:1.5;
@@ -138,7 +124,7 @@
     .roadmapTag{
       display:inline-block;
       margin-top:6px;
-      font-size:10px; /* ↓ */
+      font-size:10px;
       font-weight:800;
       color:#2563eb;
       background:#eff6ff;
@@ -146,15 +132,40 @@
       padding:2px 8px;
       border-radius:999px;
     }
+
+    .wishStores{
+      margin:0 0 10px;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:baseline;
+    }
+    .wishLabel{
+      font-size:12px;
+      font-weight:800;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .wishNames{
+      font-size:12px;
+      font-weight:700;
+      color:var(--text);
+      line-height:1.45;
+      min-width:0;
+    }
+
     @media (min-width: 820px){
       .roadmapList{
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
       }
     }
 
-    /* ===== 下部スクロールエリア（カレンダー一覧） ===== */
     .scrollArea{
-      height: calc(100vh - var(--topH)); /* ←ここが重要：上部固定ぶんを引く */
+      height: calc(100vh - var(--topH));
       overflow:auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
@@ -162,61 +173,52 @@
     .scrollWrap{
       max-width:1100px;
       margin:0 auto;
-      padding:10px 12px 22px; /* ↓ */
+      padding:10px 12px 22px;
     }
 
-    /* 月セクション */
     .monthSection{
       background:transparent;
-      margin-bottom:12px; /* ↓ */
+      margin-bottom:12px;
     }
     .monthHeader{
       display:flex;
       align-items:baseline;
       justify-content:space-between;
       gap:10px;
-      padding:9px 11px; /* ↓ */
+      padding:9px 11px;
       background:#fff;
       border:1px solid var(--border);
       border-radius:14px 14px 0 0;
       border-bottom:none;
     }
-    .monthTitle{
+    .monthName{
       margin:0;
-      font-size:13px; /* ↓ */
-      font-weight:800;
-      color:var(--text);
+      font-size:14px;
+      font-weight:900;
     }
-    .monthSub{
-      font-size:11px; /* ↓ */
+    .monthMeta{
+      font-size:11px;
       color:var(--muted);
-      font-weight:600;
+      font-weight:700;
     }
 
     .dow{
       display:grid;
       grid-template-columns:repeat(7,1fr);
-      background:var(--bg);
+      background:#f3f4f6;
       border:1px solid var(--border);
-      border-bottom:none;
       border-top:none;
-      overflow:hidden;
-      width:100%;         /* ★ 横幅に収める */
-      max-width:100%;
-      box-sizing:border-box;
+      border-bottom:none;
     }
     .dow div{
-      padding:8px 6px;     /* ↓ */
-      font-size:11px;      /* ↓ */
-      color:var(--muted);
-      font-weight:700;
+      padding:6px 6px;
+      font-size:11px;
+      font-weight:800;
+      color:#374151;
       border-right:1px solid var(--border);
-      background:#fff;
       text-align:center;
-      min-width:0;
-      box-sizing:border-box;
     }
-    .dow div:last-child{ border-right:none; }
+    .dow div:nth-child(7){ border-right:none; }
 
     .grid{
       display:grid;
@@ -227,7 +229,7 @@
       border-radius:0 0 14px 14px;
       overflow:hidden;
       position:relative;
-      width:100%;          /* ★ 横幅に収める */
+      width:100%;
       max-width:100%;
       box-sizing:border-box;
     }
@@ -235,7 +237,7 @@
       min-height:var(--cellh);
       border-right:1px solid var(--border);
       border-top:1px solid var(--border);
-      padding:6px 6px 5px; /* ↓ */
+      padding:6px 6px 5px;
       position:relative;
       background:#fff;
       min-width:0;
@@ -243,13 +245,12 @@
     }
     .cell:nth-child(7n){ border-right:none; }
 
-    /* ★ 月外セルは空白化（前後月の日付を出さない） */
     .cell.outside{
       background:#f9fafb;
     }
 
     .date{
-      font-size:11px; /* ↓ */
+      font-size:11px;
       font-weight:700;
       display:flex;
       justify-content:space-between;
@@ -260,15 +261,15 @@
     .date .out{ color:#9ca3af; }
     .today{
       display:inline-block;
-      width:7px;height:7px; /* ↓ */
+      width:7px;height:7px;
       border-radius:999px;
       background:#2563eb;
-      margin-left:5px; /* ↓ */
+      margin-left:5px;
       vertical-align:middle;
     }
 
     .lanes{
-      margin-top:6px; /* ↓ */
+      margin-top:6px;
       display:flex;
       flex-direction:column;
       gap:var(--gap);
@@ -279,15 +280,38 @@
       border-radius:var(--radius);
       display:flex;
       align-items:center;
-      padding:0 8px;     /* ↓ */
-      font-size:11px;    /* ↓ */
+      padding:0 8px;
+      font-size:11px;
       font-weight:700;
       color:#fff;
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      overflow:visible;         /* ★ テキストを見切れさせない */
+      text-overflow:clip;       /* ★ 省略しない */
       min-width:0;
+      position:relative;
+      z-index:1;
     }
+
+    /* ★ 連結バー：初日だけテキストを表示し、右側へはみ出しても見えるように前面に */
+    .bar.segStart{
+      margin-right:-6px;
+      border-top-right-radius:0;
+      border-bottom-right-radius:0;
+      z-index:10;
+    }
+    .bar.segMid{
+      margin-left:-6px;
+      margin-right:-6px;
+      border-radius:0;
+      z-index:2;
+    }
+    .bar.segEnd{
+      margin-left:-6px;
+      border-top-left-radius:0;
+      border-bottom-left-radius:0;
+      z-index:2;
+    }
+
     .bar.ghost{
       opacity:0;
     }
@@ -297,130 +321,18 @@
       background:#fff;
       border:1px solid var(--border);
       border-radius:14px;
-      padding:10px;     /* ↓ */
+      padding:10px 12px;
+      font-size:12px;
       color:var(--muted);
-      font-size:11px;   /* ↓ */
-      line-height:1.5;
+      font-weight:650;
+      line-height:1.45;
     }
-    .hint code{
-      color:#111827;
+    code{
       background:#f3f4f6;
-      padding:2px 6px;
+      padding:1px 6px;
       border-radius:8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:11px; /* ↓ */
-    }
-
-    /* =========================================================
-       モバイル最適化（レスポンシブ）
-       ========================================================= */
-    @media (max-width: 720px){
-      :root{
-        --cellh: 64px;  /* ★ 7列が収まりやすいように圧縮 */
-        --barh: 16px;
-        --gap: 3px;
-        --radius: 7px;
-      }
-
-      body{
-        font-size:11px; /* ★ 全体をさらに小さく */
-      }
-
-      header{
-        padding:9px 10px;
-      }
-      .title h1{
-        font-size:12px;
-      }
-      .title .ym{
-        font-size:11px;
-      }
-
-      .wrap{
-        padding:8px 10px;
-      }
-      .roadmap{
-        padding:8px;
-        border-radius:12px;
-      }
-      .roadmapTitle{
-        font-size:11px;
-      }
-      .roadmapNote{
-        font-size:10px;
-        line-height:1.35;
-      }
-      .roadmapItem{
-        padding:7px 7px;
-      }
-      .roadmapWhen{
-        min-width:86px;
-        font-size:10px;
-      }
-      .roadmapWhat{
-        font-size:10px;
-      }
-      .roadmapTag{
-        font-size:9px;
-        padding:2px 6px;
-      }
-
-      .monthHeader{
-        padding:8px 9px;
-        border-radius:12px 12px 0 0;
-      }
-      .monthTitle{
-        font-size:12px;
-      }
-      .monthSub{
-        font-size:10px;
-      }
-
-      .dow, .grid{
-        width:100%;
-        max-width:100%;
-      }
-
-      .dow div{
-        padding:6px 2px;
-        font-size:10px;
-      }
-      .cell{
-        padding:5px 4px 4px;
-      }
-      .date{
-        font-size:10px;
-      }
-      .bar{
-        font-size:10px;
-        padding:0 6px;
-      }
-
-      .hint{
-        padding:9px;
-        border-radius:12px;
-        font-size:10px;
-      }
-      .hint code{
-        font-size:10px;
-      }
-    }
-
-    @media (max-width: 420px){
-      :root{
-        --cellh: 58px;
-        --barh: 15px;
-      }
-      body{
-        font-size:10.5px; /* 微調整 */
-      }
-      .dow div{
-        font-size:9.5px;
-        padding:6px 1px;
-      }
-      .bar{
-        font-size:9.5px;
-      }
+      font-weight:800;
+      color:#111827;
     }
   </style>
 </head>
@@ -440,6 +352,11 @@
         </div>
         <ul class="roadmapList" id="roadmapList"></ul>
       </section>
+
+      <div class="wishStores" aria-label="導入希望店舗">
+        <div class="wishLabel">導入希望店舗：</div>
+        <div class="wishNames">歌舞伎町 / DPlaza大分 / 上野 / 池袋東口駅前 / 京都アバンティ / 栄三丁目 / 藤沢駅南口 / 秋葉原</div>
+      </div>
     </div>
   </div>
 
@@ -455,11 +372,6 @@
   </div>
 
 <script>
-/**
- * 予定データ（読取専用運用向け）
- * - start/end は YYYY-MM-DD（end は最終日を含む）
- * - color は見た目用
- */
 const EVENTS = [
   { id: "e1", title: "栄本店(完了)", start: "2026-02-04", end: "2026-02-06", color: "#696969" },
   { id: "e2", title: "四条通(完了)", start: "2026-02-08", end: "2026-02-10", color: "#696969" },
@@ -501,31 +413,31 @@ function parseISODate(s){
   return new Date(y, m-1, d);
 }
 function addDays(d, n){
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  x.setDate(x.getDate() + n);
+  const x = new Date(d);
+  x.setDate(x.getDate()+n);
   return x;
 }
-function startOfMonth(y, m){ return new Date(y, m, 1); }
-function endOfMonth(y, m){ return new Date(y, m+1, 0); }
+function startOfMonth(d){
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+function endOfMonth(d){
+  return new Date(d.getFullYear(), d.getMonth()+1, 0);
+}
 
-function buildMonthGrid(baseDate){
-  const y = baseDate.getFullYear();
-  const m = baseDate.getMonth();
-  const first = startOfMonth(y,m);
+function buildMonthMatrix(year, monthIndex){
+  const first = new Date(year, monthIndex, 1);
+  const last = new Date(year, monthIndex+1, 0);
 
-  const lead = first.getDay();
-  const gridStart = addDays(first, -lead);
+  const start = addDays(first, -first.getDay());
+  const end = addDays(last, 6 - last.getDay());
 
-  const cells = [];
-  for(let i=0;i<42;i++){
-    const d = addDays(gridStart, i);
-    cells.push({
-      date: d,
-      iso: toISODate(d),
-      inMonth: d.getMonth() === m,
-    });
+  const days = [];
+  let cur = new Date(start);
+  while(cur <= end){
+    days.push(new Date(cur));
+    cur = addDays(cur, 1);
   }
-  return { y, m, cells };
+  return { start, end, days, first, last };
 }
 
 function splitEventIntoWeekSegments(ev){
@@ -555,117 +467,6 @@ function splitEventIntoWeekSegments(ev){
   return segs;
 }
 
-function segmentsForMonth(cells, events){
-  const cellSet = new Set(cells.filter(c => c.inMonth).map(c => c.iso)); /* ★ 当月セルのみ */
-  const segs = [];
-  for(const ev of events){
-    for(const seg of splitEventIntoWeekSegments(ev)){
-      let hit = false;
-      let cur = parseISODate(seg.startISO);
-      const end = parseISODate(seg.endISO);
-      while(cur <= end){
-        if(cellSet.has(toISODate(cur))){ hit = true; break; }
-        cur = addDays(cur,1);
-      }
-      if(hit) segs.push(seg);
-    }
-  }
-  return segs;
-}
-
-function placeSegmentsIntoLanes(cells, segs){
-  const weeks = [];
-  for(let w=0; w<6; w++){
-    weeks.push(cells.slice(w*7, w*7+7));
-  }
-
-  const weekLanes = weeks.map(() => []);
-  const sorted = [...segs].sort((a,b)=> a.startISO.localeCompare(b.startISO));
-
-  const placed = [];
-  for(const seg of sorted){
-    let weekIndex = -1;
-    let startIdx = -1;
-    let endIdx = -1;
-
-    for(let w=0; w<6; w++){
-      const wk = weeks[w];
-
-      const idxS = wk.findIndex(c => c.iso === seg.startISO);
-      const idxE = wk.findIndex(c => c.iso === seg.endISO);
-      if(idxS !== -1 && idxE !== -1){
-        if(!wk[idxS].inMonth && !wk[idxE].inMonth) break;
-        weekIndex = w;
-        startIdx = idxS;
-        endIdx = idxE;
-        break;
-      }
-    }
-
-    if(weekIndex === -1){
-      for(let w=0; w<6; w++){
-        const wk = weeks[w];
-
-        const inMonthIdxs = wk.map((c,i)=> c.inMonth ? i : -1).filter(i=> i !== -1);
-        if(inMonthIdxs.length === 0) continue;
-
-        const firstIn = inMonthIdxs[0];
-        const lastIn  = inMonthIdxs[inMonthIdxs.length - 1];
-
-        const weekStart = parseISODate(wk[0].iso);
-        const weekEnd   = parseISODate(wk[6].iso);
-
-        const segStart = parseISODate(seg.startISO);
-        const segEnd   = parseISODate(seg.endISO);
-
-        const overlapsWeek = !(segEnd < weekStart || segStart > weekEnd);
-        if(!overlapsWeek) continue;
-
-        const idxS = wk.findIndex(c => c.iso === seg.startISO);
-        const idxE = wk.findIndex(c => c.iso === seg.endISO);
-
-        const sIdx = (idxS !== -1) ? idxS : 0;
-        const eIdx = (idxE !== -1) ? idxE : 6;
-
-        startIdx = Math.max(sIdx, firstIn);
-        endIdx   = Math.min(eIdx, lastIn);
-
-        if(startIdx <= endIdx){
-          weekIndex = w;
-          break;
-        }
-      }
-    }
-    if(weekIndex === -1) continue;
-
-    const lanes = weekLanes[weekIndex];
-    const span = { startIdx, endIdx };
-
-    let laneIndex = 0;
-    while(true){
-      if(!lanes[laneIndex]){
-        lanes[laneIndex] = Array(7).fill(false);
-      }
-      let ok = true;
-      for(let i=span.startIdx; i<=span.endIdx; i++){
-        if(lanes[laneIndex][i]){ ok = false; break; }
-      }
-      if(ok){
-        for(let i=span.startIdx; i<=span.endIdx; i++){
-          lanes[laneIndex][i] = true;
-        }
-        placed.push({ ...seg, weekIndex, laneIndex, startIdx, endIdx });
-        break;
-      }
-      laneIndex++;
-      if(laneIndex > 8){
-        break;
-      }
-    }
-  }
-  return { weeks, weekLanes, placed };
-}
-
 function renderRoadmap(){
   const listEl = document.getElementById("roadmapList");
   if(!listEl) return;
@@ -693,6 +494,7 @@ function renderRoadmap(){
       const tag = document.createElement("div");
       tag.className = "roadmapTag";
       tag.textContent = item.tag;
+      what.appendChild(document.createElement("br"));
       what.appendChild(tag);
     }
 
@@ -702,9 +504,11 @@ function renderRoadmap(){
   }
 }
 
-/* 1ヶ月分をDOMへ描画 */
-function renderMonthInto(baseDate, mountEl){
-  const { y, m, cells } = buildMonthGrid(baseDate);
+function renderMonth(year, monthIndex){
+  const mountEl = document.getElementById("months");
+  const matrix = buildMonthMatrix(year, monthIndex);
+  const monthName = `${year}年${monthIndex+1}月`;
+  const todayISO = toISODate(new Date());
 
   const section = document.createElement("section");
   section.className = "monthSection";
@@ -712,103 +516,161 @@ function renderMonthInto(baseDate, mountEl){
   const monthHeader = document.createElement("div");
   monthHeader.className = "monthHeader";
 
-  const h = document.createElement("h3");
-  h.className = "monthTitle";
-  h.textContent = `${y}年${m+1}月`;
+  const h = document.createElement("h2");
+  h.className = "monthName";
+  h.textContent = monthName;
 
-  const sub = document.createElement("div");
-  sub.className = "monthSub";
-  sub.textContent = "日曜始まり";
+  const meta = document.createElement("div");
+  meta.className = "monthMeta";
+  meta.textContent = `${pad2(monthIndex+1)}/${pad2(1)}〜${pad2(monthIndex+1)}/${pad2(endOfMonth(new Date(year, monthIndex, 1)).getDate())}`;
 
   monthHeader.appendChild(h);
-  monthHeader.appendChild(sub);
+  monthHeader.appendChild(meta);
 
   const dow = document.createElement("div");
   dow.className = "dow";
-  ["日","月","火","水","木","金","土"].forEach(t=>{
+  ["日","月","火","水","木","金","土"].forEach(x=>{
     const d = document.createElement("div");
-    d.textContent = t;
+    d.textContent = x;
     dow.appendChild(d);
   });
 
   const gridEl = document.createElement("div");
   gridEl.className = "grid";
 
-  const todayISO = toISODate(new Date());
-  for(const c of cells){
+  const dayToCell = new Map();
+  const cellToISO = [];
+
+  for(const d of matrix.days){
     const cell = document.createElement("div");
-    cell.className = "cell" + (c.inMonth ? "" : " outside");
+    cell.className = "cell";
 
-    const dateRow = document.createElement("div");
-    dateRow.className = "date";
+    const iso = toISODate(d);
+    cellToISO.push(iso);
+    dayToCell.set(iso, cell);
 
-    const num = document.createElement("div");
-    if(c.inMonth){
-      num.className = "num";
-      num.textContent = c.date.getDate();
-      if(c.iso === todayISO){
-        const dot = document.createElement("span");
-        dot.className = "today";
-        num.appendChild(dot);
-      }
-    }else{
-      num.className = "num out";
-      num.textContent = ""; /* ★ 前後月の日付を表示しない */
+    if(d.getMonth() !== monthIndex){
+      cell.classList.add("outside");
     }
 
-    const spacer = document.createElement("div");
-    spacer.style.width = "10px";
+    const date = document.createElement("div");
+    date.className = "date";
 
-    dateRow.appendChild(num);
-    dateRow.appendChild(spacer);
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = (d.getMonth() === monthIndex) ? String(d.getDate()) : "";
+
+    const out = document.createElement("span");
+    out.className = "out";
+    out.textContent = "";
+
+    date.appendChild(num);
+    date.appendChild(out);
+
+    if(iso === todayISO && d.getMonth() === monthIndex){
+      const dot = document.createElement("span");
+      dot.className = "today";
+      num.appendChild(dot);
+    }
 
     const lanes = document.createElement("div");
     lanes.className = "lanes";
-    if(c.inMonth){
-      lanes.dataset.iso = c.iso; /* ★ 当月だけ識別 */
-    }else{
-      lanes.dataset.iso = "";    /* ★ 月外は描画対象外 */
-    }
 
-    cell.appendChild(dateRow);
+    cell.appendChild(date);
     cell.appendChild(lanes);
+
     gridEl.appendChild(cell);
   }
 
-  const segs = segmentsForMonth(cells, EVENTS);
-  const { weeks, weekLanes, placed } = placeSegmentsIntoLanes(cells, segs);
+  const parts = [];
+  for(const ev of EVENTS){
+    const segs = splitEventIntoWeekSegments(ev);
+    for(const s of segs){
+      parts.push(s);
+    }
+  }
 
-  for(let w=0; w<6; w++){
-    const laneCount = weekLanes[w].length;
-    for(let i=0; i<7; i++){
-      const iso = weeks[w][i].iso;
-      const inMonth = weeks[w][i].inMonth;
-      if(!inMonth) continue; /* ★ 月外セルにはレーンを作らない */
+  const monthStartISO = toISODate(matrix.start);
+  const monthEndISO = toISODate(matrix.end);
 
-      const lanesEl = gridEl.querySelector(`.lanes[data-iso="${iso}"]`);
-      if(!lanesEl) continue;
+  const inRange = parts.filter(p => !(p.endISO < monthStartISO || p.startISO > monthEndISO));
 
-      for(let l=0; l<laneCount; l++){
-        const ghost = document.createElement("div");
-        ghost.className = "bar ghost";
-        ghost.textContent = ".";
-        lanesEl.appendChild(ghost);
-      }
+  const lanesByDay = new Map();
+  const placed = [];
+
+  function isLaneFree(startISO, endISO, lane){
+    let cur = parseISODate(startISO);
+    const end = parseISODate(endISO);
+    while(cur <= end){
+      const iso = toISODate(cur);
+      const s = lanesByDay.get(iso);
+      if(s && s.has(lane)) return false;
+      cur = addDays(cur, 1);
+    }
+    return true;
+  }
+
+  function occupyLane(startISO, endISO, lane){
+    let cur = parseISODate(startISO);
+    const end = parseISODate(endISO);
+    while(cur <= end){
+      const iso = toISODate(cur);
+      if(!lanesByDay.has(iso)) lanesByDay.set(iso, new Set());
+      lanesByDay.get(iso).add(lane);
+      cur = addDays(cur, 1);
+    }
+  }
+
+  inRange.sort((a,b)=>{
+    if(a.startISO !== b.startISO) return a.startISO.localeCompare(b.startISO);
+    const lenA = (parseISODate(a.endISO) - parseISODate(a.startISO));
+    const lenB = (parseISODate(b.endISO) - parseISODate(b.startISO));
+    return lenB - lenA;
+  });
+
+  for(const p of inRange){
+    let lane = 0;
+    while(!isLaneFree(p.startISO, p.endISO, lane)) lane++;
+    occupyLane(p.startISO, p.endISO, lane);
+    placed.push({...p, lane});
+  }
+
+  const maxLane = placed.reduce((m,x)=>Math.max(m, x.lane), -1);
+  for(const iso of dayToCell.keys()){
+    const cell = dayToCell.get(iso);
+    const lanesEl = cell.querySelector(".lanes");
+    for(let i=0;i<=maxLane;i++){
+      const ghost = document.createElement("div");
+      ghost.className = "bar ghost";
+      ghost.textContent = "";
+      lanesEl.appendChild(ghost);
     }
   }
 
   for(const p of placed){
-    const wk = weeks[p.weekIndex];
+    const s = parseISODate(p.startISO);
+    const e = parseISODate(p.endISO);
 
-    for(let i=p.startIdx; i<=p.endIdx; i++){
-      const iso = wk[i].iso;
-      const inMonth = wk[i].inMonth;
-      if(!inMonth) continue; /* ★ 月外セルにはバーを出さない */
+    const clipS = (p.startISO < monthStartISO) ? parseISODate(monthStartISO) : s;
+    const clipE = (p.endISO > monthEndISO) ? parseISODate(monthEndISO) : e;
 
-      const lanesEl = gridEl.querySelector(`.lanes[data-iso="${iso}"]`);
-      if(!lanesEl) continue;
+    for(let i=0;i<cellToISO.length;i++){
+      const iso = cellToISO[i];
+      if(iso === toISODate(clipS)){
+        p.startIdx = i;
+      }
+      if(iso === toISODate(clipE)){
+        p.endIdx = i;
+      }
+    }
 
-      const slot = lanesEl.children[p.laneIndex];
+    for(let i=p.startIdx;i<=p.endIdx;i++){
+      const iso = cellToISO[i];
+      const cell = dayToCell.get(iso);
+      if(!cell) continue;
+      const lanesEl = cell.querySelector(".lanes");
+
+      const slot = lanesEl.children[p.lane];
       const bar = document.createElement("div");
       bar.className = "bar";
       bar.style.background = p.color;
@@ -823,7 +685,16 @@ function renderMonthInto(baseDate, mountEl){
         bar.style.borderRadius = "0";
       }
 
+      // ★ テキストは「連結バーの初日」だけに表示（ただし overflow:visible で右へ伸ばす）
       bar.textContent = (i === p.startIdx) ? p.title : "";
+
+      if(i === p.startIdx && i !== p.endIdx){
+        bar.classList.add("segStart");
+      }else if(i === p.endIdx && i !== p.startIdx){
+        bar.classList.add("segEnd");
+      }else if(i !== p.startIdx && i !== p.endIdx){
+        bar.classList.add("segMid");
+      }
       lanesEl.replaceChild(bar, slot);
     }
   }
@@ -834,23 +705,25 @@ function renderMonthInto(baseDate, mountEl){
   mountEl.appendChild(section);
 }
 
-/* 月一覧を縦に並べる */
 function renderAllMonths(){
   const monthsEl = document.getElementById("months");
   monthsEl.innerHTML = "";
 
-  // 表示範囲：2026年2月〜2026年12月
-  const start = new Date(2026, 1, 1);  // 2026-02
-  const end   = new Date(2026, 11, 1); // 2026-12
+  const starts = EVENTS.map(e=>parseISODate(e.start));
+  const ends = EVENTS.map(e=>parseISODate(e.end));
+  const minDate = new Date(Math.min(...starts));
+  const maxDate = new Date(Math.max(...ends));
 
-  let cur = new Date(start.getFullYear(), start.getMonth(), 1);
-  while(cur <= end){
-    renderMonthInto(cur, monthsEl);
+  const startM = startOfMonth(minDate);
+  const endM = startOfMonth(maxDate);
+
+  let cur = new Date(startM.getFullYear(), startM.getMonth(), 1);
+  while(cur <= endM){
+    renderMonth(cur.getFullYear(), cur.getMonth());
     cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
   }
 }
 
-/* 上部固定エリアの高さをCSS変数に反映（見切れ防止） */
 function syncTopHeight(){
   const top = document.getElementById("topFixed");
   if(!top) return;
@@ -858,13 +731,11 @@ function syncTopHeight(){
   document.documentElement.style.setProperty("--topH", `${Math.ceil(h)}px`);
 }
 
+window.addEventListener("resize", syncTopHeight);
+
 renderRoadmap();
 renderAllMonths();
 syncTopHeight();
-
-window.addEventListener("resize", () => {
-  syncTopHeight();
-});
 </script>
 </body>
 </html>
