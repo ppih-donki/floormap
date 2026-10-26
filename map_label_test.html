@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>MAP ラベル回転テスト</title>
+<title>MAP ラベル回転・現在地テスト</title>
 <style>
 html,body{margin:0;height:100%;background:#fff;overflow:hidden}
 #map{display:block;width:100vw;height:100vh;height:100dvh}
-#ui{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:8px;background:rgba(0,0,0,.7);color:#fff;font:14px sans-serif;align-items:center}
+#ui{position:fixed;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:rgba(0,0,0,.7);color:#fff;font:14px sans-serif;align-items:center}
 #ui button{font-size:15px;padding:8px 12px}
-#st{flex:1}
+#st{flex:1 1 100%}
+#pin circle{fill:#e60012;stroke:#fff;stroke-width:3;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.12}}
+#scan{position:fixed;inset:0;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+#scan video{width:100%;max-height:80%;object-fit:cover}
+#scan p{color:#fff;font:15px sans-serif;margin:10px}
+#scan button{font-size:16px;padding:10px 20px}
 </style></head><body>
 <svg id="map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1754" preserveAspectRatio="xMidYMid meet">
 <rect width="100%" height="100%" fill="#fff"/>
@@ -10871,13 +10877,29 @@ html,body{margin:0;height:100%;background:#fff;overflow:hidden}
 <g id="cat03" transform="translate(470 600) rotate(0)"><text x="0" y="-50.9" font-size="26" text-anchor="middle" fill="#222" font-weight="bold" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">コスメ</text><text x="0" y="-22.3" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">Cosmetics</text><text x="0" y="7.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">화장품</text><text x="0" y="37.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">美妝</text><text x="0" y="67.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">化妆品</text></g>
 <g id="cat04" transform="translate(720 900) rotate(0)"><text x="0" y="-50.9" font-size="26" text-anchor="middle" fill="#222" font-weight="bold" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">日用品</text><text x="0" y="-22.3" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">Daily Goods</text><text x="0" y="7.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">생활용품</text><text x="0" y="37.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">日用品</text><text x="0" y="67.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">日用品</text></g>
 <g id="cat05" transform="translate(330 1030) rotate(0)"><text x="0" y="-50.9" font-size="26" text-anchor="middle" fill="#222" font-weight="bold" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">衣料品</text><text x="0" y="-22.3" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">Clothing</text><text x="0" y="7.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">의류</text><text x="0" y="37.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">服飾</text><text x="0" y="67.7" font-size="22" text-anchor="middle" fill="#222" font-weight="normal" font-family="Yu Gothic, Malgun Gothic, Microsoft JhengHei, Microsoft YaHei, sans-serif">服装</text></g></svg>
-<div id="ui"><button id="start">傾き検知を開始</button><button id="cyc">手動で回す</button><span id="st">角度: 0</span></div>
+<div id="ui">
+  <button id="start">傾き検知を開始</button>
+  <button id="cyc">手動で回す</button>
+  <button id="qr">QR読取</button>
+  <span id="st">角度: 0</span>
+</div>
+<div id="scan">
+  <video id="vid" playsinline muted></video>
+  <p>床のQRコードを枠内に写してください</p>
+  <button id="scanCancel">キャンセル</button>
+</div>
+<canvas id="cv" hidden></canvas>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"></script>
 <script>
+const CURRENT_STORE='388', CURRENT_FLOOR='1F';
+const svg=document.getElementById('map');
+const st=document.getElementById('st');
+
+/* ---------- ラベルの回転（図面は固定、文字だけ回す） ---------- */
 const labels=[...document.querySelectorAll('#map g[id^="cat"]')].map(g=>{
   const m=/translate\(([-\d.]+) ([-\d.]+)\)/.exec(g.getAttribute('transform'));
   return {g,cx:+m[1],cy:+m[2]};
 });
-const st=document.getElementById('st');
 let angle=0;
 function setAngle(a){
   angle=a;
@@ -10891,7 +10913,7 @@ function onMotion(e){
   if(!g||g.x==null)return;
   let x=g.x,y=g.y;
   if(ios){x=-x;y=-y;}
-  if(Math.hypot(x,y)<5)return;              // 机に平置きなどは無視
+  if(Math.hypot(x,y)<5)return;
   let a=Math.round(Math.atan2(x,y)/(Math.PI/2))*90;
   if(a===-180)a=180;
   if(a!==angle)setAngle(a);
@@ -10906,4 +10928,62 @@ document.getElementById('start').onclick=async()=>{
     st.textContent='検知中 (角度: '+angle+')';
   }catch(err){st.textContent='エラー: '+err.message;}
 };
+
+/* ---------- 現在地ピン（赤い丸の点滅） ---------- */
+const NS='http://www.w3.org/2000/svg';
+const pin=document.createElementNS(NS,'g');
+pin.id='pin';pin.setAttribute('visibility','hidden');
+const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','16');
+pin.appendChild(dot);svg.appendChild(pin);
+function placePin(x,y){
+  pin.setAttribute('transform','translate('+x+' '+y+')');
+  pin.setAttribute('visibility','visible');
+}
+
+/* ---------- QR: AINAVI|店舗|フロア|x|y ---------- */
+function handleQr(text){
+  const m=/^AINAVI\|([^|]+)\|([^|]+)\|(-?[\d.]+)\|(-?[\d.]+)$/.exec(text.trim());
+  if(!m){st.textContent='このQRは対象外です: '+text.slice(0,30);return false;}
+  const [,store,floor,x,y]=m;
+  if(store!==CURRENT_STORE){st.textContent='別店舗のQRです ('+store+')';return false;}
+  if(floor!==CURRENT_FLOOR){st.textContent='別フロアのQRです ('+floor+' / 表示中 '+CURRENT_FLOOR+')';return false;}
+  placePin(+x,+y);
+  st.textContent='現在地を表示: '+floor+' ('+x+', '+y+')';
+  return true;
+}
+
+const scanEl=document.getElementById('scan'),vid=document.getElementById('vid'),cv=document.getElementById('cv');
+let stream=null,scanning=false;
+function stopScan(){
+  scanning=false;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  vid.srcObject=null;scanEl.style.display='none';
+}
+function tick(){
+  if(!scanning)return;
+  if(vid.readyState===vid.HAVE_ENOUGH_DATA&&vid.videoWidth){
+    const k=Math.min(1,640/vid.videoWidth);
+    cv.width=Math.round(vid.videoWidth*k);cv.height=Math.round(vid.videoHeight*k);
+    const ctx=cv.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(vid,0,0,cv.width,cv.height);
+    const img=ctx.getImageData(0,0,cv.width,cv.height);
+    const r=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+    if(r&&r.data&&handleQr(r.data)){stopScan();return;}
+  }
+  requestAnimationFrame(tick);
+}
+document.getElementById('qr').onclick=async()=>{
+  if(typeof jsQR!=='function'){st.textContent='QRライブラリを読み込めませんでした（通信を確認）';return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){st.textContent='カメラを使えません（httpsで開いてください）';return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    vid.srcObject=stream;await vid.play();
+    scanEl.style.display='flex';scanning=true;tick();
+  }catch(err){st.textContent='カメラを起動できません: '+err.message;}
+};
+document.getElementById('scanCancel').onclick=stopScan;
+
+/* 確認用: ?x=600&y=900 でもピンを置ける */
+const q=new URLSearchParams(location.search);
+if(q.has('x')&&q.has('y'))placePin(+q.get('x'),+q.get('y'));
 </script></body></html>
